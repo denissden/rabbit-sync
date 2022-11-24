@@ -4,7 +4,7 @@ from kombu import Connection, Message
 from kombu.mixins import ConsumerProducerMixin
 from . import definitions
 from .definitions import main_queue, main_exchange
-from .events import BaseEvent, PingPong, EVENT_TYPE_PING, EVENT_TYPE_PONG
+from .events import BaseEvent, PingPong, EVENT_TYPE_PING, EVENT_TYPE_PONG, EVENT_INTERNAL_READY
 
 HandlersType = list[dict[str, Callable[[BaseEvent], None]]]
 
@@ -18,6 +18,10 @@ class Worker(ConsumerProducerMixin):
 
     def on_consume_ready(self, connection, channel, consumers, **kwargs):
         self.ping()
+
+        self.process_handlers({
+            'event_type': EVENT_INTERNAL_READY
+        })
 
     def ping(self):
         ping: PingPong = {

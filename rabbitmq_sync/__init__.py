@@ -1,3 +1,6 @@
+import threading
+from threading import Thread
+
 from kombu import Connection
 from rabbitmq_sync.filesystem.utils import cwd
 from rabbitmq_sync.filesystem.watcher import start_observing_filesystem
@@ -29,8 +32,10 @@ def start(rabbit_url: str):
 
 
 def get_handlers(connection: Connection) -> HandlersType:
-    from rabbitmq_sync.filesystem import register as register_filesystem
+    from rabbitmq_sync.copy import register as register_copy
+    from rabbitmq_sync.http import register as register_http
 
     return [
-        register_filesystem(connection)
+        register_copy(connection),
+        register_http(connection),
     ]
